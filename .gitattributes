@@ -1,0 +1,23 @@
+# Auto-detect text files and enforce LF line endings
+* text=auto eol=lf
+
+# Mark common file types explicitly
+*.py   text diff=python
+*.js   text diff=javascript
+*.ts   text
+*.json text
+*.yml  text
+*.yaml text
+*.md   text
+*.sh   text eol=lf
+*.bat  text eol=crlf
+
+# Binary files
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.pdf  binary
+*.docx binary
+*.pptx binary
+*.xlsx binary
