@@ -1,0 +1,43 @@
+name: RAG Eval CI
+on: [push, workflow_dispatch]
+jobs:
+  rag-eval:
+    runs-on: ubuntu-latest
+    env:
+      ENV: dev
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
+      RAG_API_TOKEN: ${{ secrets.RAG_API_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      K6_VUS: 80
+      K6_P95_MS: 1200
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install deps
+        run: |
+          python -m pip install -U pip
+          pip install -U pytest requests schemathesis hypothesis pyyaml ragas "openai>=1.30" "pydantic<3" pandas pyarrow tqdm datasets
+      - name: Seed corpus
+        run: python scripts/seed.py
+      - name: Contract tests
+        run: pytest -q tests/test_contract.py
+      - name: Functional tests
+        run: pytest -q tests/test_rag_functional.py
+      - name: Install k6
+        run: |
+          curl -s https://raw.githubusercontent.com/grafana/k6/master/scripts/install.sh | bash
+      - name: k6 smoke (short)
+        run: K6_VUS=30 k6 run k6/script.js
+      - name: Node + promptfoo
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm i -D promptfoo promptfoo-provider-http
+      - name: Promptfoo checks
+        run: npx promptfoo eval
+      - name: RAGAS metrics
+        run: python evals/run_ragas.py --gold data/gold.csv --out evals/metrics.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rag-metrics
+          path: evals/metrics.json
