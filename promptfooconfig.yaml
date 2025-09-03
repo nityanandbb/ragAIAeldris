@@ -1,0 +1,34 @@
+version: 1
+providers:
+  - id: http
+    label: RAG API /query
+    config:
+      url: "${API_BASE_URL:-http://52.221.197.158:8000}/query"
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: "Bearer ${RAG_API_TOKEN}"
+      body: |
+        {"question":"{{question}}"}
+      responsePath: "answer"
+
+prompts:
+  - "{{question}}"
+
+tests:
+  - vars: { question: "Where is the OpenAPI spec URL?" }
+    assert:
+      - type: contains
+        value: "/openapi.json"
+  - vars: { question: "How do I authenticate to this API?" }
+    assert:
+      - type: contains
+        value: "Authorization: Bearer"
+  - vars: { question: "What is the capital of India?" }
+    assert:
+      - type: contains
+        value: "New Delhi"
+  - vars: { question: "What does a RAG system do?" }
+    assert:
+      - type: icontains
+        value: "retrieve"

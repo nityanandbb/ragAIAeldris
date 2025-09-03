@@ -1,0 +1,18 @@
+api:
+  base_url: ${API_BASE_URL}
+  token: ${RAG_API_TOKEN}
+  timeout_s: 30
+  openapi_path: /openapi.json
+endpoints:
+  ingest: /ingest
+  query: /query
+perf:
+  k6:
+    vus: ${K6_VUS}
+    p95_ms: ${K6_P95_MS}
+eval:
+  ragas_thresholds:
+    faithfulness: 0.80
+    answer_relevancy: 0.85
+    context_precision: 0.70
+    context_recall: 0.70

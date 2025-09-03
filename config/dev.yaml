@@ -1,0 +1,6 @@
+api:
+  timeout_s: 20
+perf:
+  k6:
+    vus: 50
+    p95_ms: 1500
